@@ -52,6 +52,7 @@ def make_DF(texts):
     touchdown = re.compile("TOUCHDOWN")
     name = re.compile("(\w+\.\w+((\-| |')[A-Z]+[a-z]*)*\.?)")
 
+    nullified_search = re.compile("NULLIFIED")
     return_spot = re.compile("to (([A-Z]{1,3} )?[0-9]{1,3} )?|((ran|pushed) ob at ([A-Z]{1,3} )?[0-9]{1,3}) ")
     return_yards = re.compile("for ((-)?[0-9]{1,3} yard(s)?|(no gain))")
     spot = re.compile("-?[0-9]{1,3}")
@@ -179,7 +180,11 @@ def make_DF(texts):
         #Touchdown
         touchdown_result = re.search(touchdown, text)
         if(touchdown_result != None):
-            isTouchdown.append(True)
+            nullified_result = re.search(nullified_search, text)
+            if(nullified_result):
+                isTouchdown.append(False)
+            else:
+                isTouchdown.append(True)
         else:
             isTouchdown.append(False)
 
@@ -310,12 +315,12 @@ def make_DF(texts):
 
 #CHECKING FOR BAD ENTRIES
 texts = list(df['desc'])
-print(len(texts))
+#print(len(texts))
 while "*** play under review ***" in texts: texts.remove("*** play under review ***")
 for text in texts:
     if("play under review" in text):
         print(text)
-print(len(texts))
+#print(len(texts))
 df = make_DF(texts)
 
 print(df.head())
