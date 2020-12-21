@@ -15,5 +15,7 @@ The endpoint for this project will be a Jupiter notebook, or other code/graph/te
 For the most part, the data cleaning/engineering in this project will be done in Python, with the analysis being conducted in R. Although the play-by-play data has some statistics about kickoffs, they prove largely unreliable (check pbp_boxscores.ipynb). Thus, I used Python's *re* module to collect kickoff statistics from the boxscores. This is possible because the boxscores are written in a fairly regular way, with little deviation. More to come on methods in R.
 
 **Directory**
-1. *pbp_boxscores.ipynb* - this file explores Yurko's data, as well as creates a DF with the relevant kickoff statistics using Python's *re* module.
-2. *requirements.txt* - this file contains all of the necessary modules for running my code. install from the file with *pip install -r requirements.txt*
+1. *code/pbp_boxscores.ipynb* - this Jupiter Notebook explores Yurko's data, as well as creates a DF with the relevant kickoff statistics using Python's *re* module.
+2. *code/generate_DF.py* - this python script runs through boxscores of every kickoff from 2009-2019 and generates 26 statistics for each play, outputted to a csv file.
+3. *code/kickoff_statistics* - the database created in *generate_DF.py*.
+4. *requirements.txt* - this file contains all of the necessary modules for running my code. install from the file with *pip install -r requirements.txt*
