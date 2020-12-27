@@ -10,7 +10,7 @@ PBP_data = "../nflscrapR-data/play_by_play_data/regular_season"
 dfs = []
 
 for season_file in os.listdir(PBP_data):
-    df = pd.read_csv(PBP_data + "/" + season_file, usecols=['desc', 'play_type'])
+    df = pd.read_csv(PBP_data + "/" + season_file, usecols=['desc', 'play_type', 'defteam', 'posteam']) #is this disjointing the lists?
     dfs.append(df)
     print(season_file + " loaded.")
 
@@ -18,7 +18,7 @@ df = pd.concat(dfs)
 df = df[df["play_type"] == "kickoff"]
 
 #EXTRACTING DATA, CREATING NEW DF
-def make_DF(texts):
+def make_DF(texts, kicking, receiving):
     #FIRST SENTENCE
     kicker = [] #String
     isTouchback = [] #bool
@@ -73,14 +73,15 @@ def make_DF(texts):
     muff_recover_search = re.compile("RECOVERED")
     penalty_search = re.compile("PENALTY on [A-Z]{1,3}-(\w+\.\w+((\-| |')\w+)*\.?), \w+(( |-)\w+)*( \([0-9]{1,2} (Y|y)ards\))?, [0-9]{1,2} yards, enforced at [A-Z]{1,3} [0-9]{1,2}.")
     penalty_search2 = re.compile(", \w+(( |-)\w+)*( \([0-9]{1,2} (Y|y)ards\))?, [0-9]{1,2} yards,")
+    penalty_search3 = re.compile("PENALTY on [A-Z]{1,3}-")
     penaltyType_search = re.compile("\w+(( |-)\w+)*")
     penaltySpot_search = re.compile("enforced at [A-Z]{1,3} [0-9]{1,2}.")
     fumble_search = re.compile("FUMBLES")
     recovers_search = re.compile("RECOVERED")
 
-
+    i=0
     for text in texts: #this runs in polynomial time, don't care about optimizing
-
+        #print(text, ":", kicking[i], ":", receiving[i])
         #FIRST SENTENCE
         #Kicker
         kicker.append(text.split(" kicks")[0])
@@ -228,7 +229,14 @@ def make_DF(texts):
                 print("ERROR")
             penaltyYards_result = re.search(yards, penalty_result.group())
             if(penaltyYards_result):
-                penaltyYards.append(int(penaltyYards_result.group()))
+                penalty_result3 = re.search(penalty_search3, penalty_result.group())
+                #HERE IS WHERE YOU NEED TO MAKE +/- YARDS
+                if(kicking[i] in penalty_result3.group()):
+                    yds = -1*int(penaltyYards_result.group())
+                    penaltyYards.append(yds)
+                else:
+                    yds = int(penaltyYards_result.group())
+                    penaltyYards.append(yds)
             else:
                 print("ERROR")
             penalty2_result = re.search(penalty_search2, text)
@@ -269,7 +277,13 @@ def make_DF(texts):
             fumbles.append(False)
             retainsFumble.append(True)
 
+        i+=1
+
     df = pd.DataFrame()
+
+    #KICKING AND RECEIVING TEAMS
+    df["kicking_team"] = kicking
+    df["receiving_team"] = receiving
 
     #FIRST SENTENCE
     df["text"] = texts
@@ -314,14 +328,10 @@ def make_DF(texts):
     return pen_set.append(nonpen_set)
 
 #CHECKING FOR BAD ENTRIES
-texts = list(df['desc'])
-#print(len(texts))
-while "*** play under review ***" in texts: texts.remove("*** play under review ***")
-for text in texts:
-    if("play under review" in text):
-        print(text)
-#print(len(texts))
-df = make_DF(texts)
+df = df[~df['desc'].str.contains("play under review", na=False)]
+
+print("creating dataframe...")
+df = make_DF(list(df["desc"]), list(df["defteam"]), list(df["posteam"]))
 
 print(df.head())
 df.to_csv("kickoff_dataset.csv")

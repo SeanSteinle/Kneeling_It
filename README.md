@@ -1,4 +1,4 @@
-## Kneeling It: A Study of NFL Touchbacks
+## Kneeling It: A Study of NFL Kickoffs
 
 **Description**
 
