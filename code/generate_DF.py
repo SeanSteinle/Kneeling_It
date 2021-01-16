@@ -10,7 +10,9 @@ PBP_data = "../nflscrapR-data/play_by_play_data/regular_season"
 dfs = []
 
 for season_file in os.listdir(PBP_data):
+    year = re.search("[0-9]{4}", season_file)
     df = pd.read_csv(PBP_data + "/" + season_file, usecols=['desc', 'play_type', 'defteam', 'posteam']) #is this disjointing the lists?
+    df["year"] = year.group()
     dfs.append(df)
     print(season_file + " loaded.")
 
@@ -18,7 +20,7 @@ df = pd.concat(dfs)
 df = df[df["play_type"] == "kickoff"]
 
 #EXTRACTING DATA, CREATING NEW DF
-def make_DF(texts, kicking, receiving):
+def make_DF(texts, kicking, receiving, year):
     #FIRST SENTENCE
     kicker = [] #String
     isTouchback = [] #bool
@@ -281,9 +283,10 @@ def make_DF(texts, kicking, receiving):
 
     df = pd.DataFrame()
 
-    #KICKING AND RECEIVING TEAMS
+    #KICKING AND RECEIVING TEAMS, YEAR
     df["kicking_team"] = kicking
     df["receiving_team"] = receiving
+    df["year"] = year
 
     #FIRST SENTENCE
     df["text"] = texts
@@ -331,7 +334,7 @@ def make_DF(texts, kicking, receiving):
 df = df[~df['desc'].str.contains("play under review", na=False)]
 
 print("creating dataframe...")
-df = make_DF(list(df["desc"]), list(df["defteam"]), list(df["posteam"]))
+df = make_DF(list(df["desc"]), list(df["defteam"]), list(df["posteam"]), list(df["year"]))
 
 print(df.head())
 df.to_csv("kickoff_dataset.csv")

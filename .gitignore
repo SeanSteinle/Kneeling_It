@@ -3,3 +3,4 @@ notebooks/.ipynb_checkpoints
 .DS_Store
 *.csv
 *.xlsx
+KI_env/*
