@@ -19,3 +19,6 @@ For the most part, the data cleaning/engineering in this project will be done in
 2. *code/generate_DF.py* - this python script runs through boxscores of every kickoff from 2009-2019 and generates 26 statistics for each play, outputted to a csv file.
 3. *code/kickoff_statistics* - the database created in *generate_DF.py*.
 4. *requirements.txt* - this file contains all of the necessary modules for running my code. install from the file with *pip install -r requirements.txt*
+
+**Resources**
+1. *http://www.footballzebras.com/2018/05/chronology-of-kickoff-rules-changes/* - This is a fantastic source to get an idea of when things changed. Has been really useful for looking at changes over the past decade.
